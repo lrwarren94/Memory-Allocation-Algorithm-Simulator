@@ -78,8 +78,9 @@ int allocate_2(int next_fit_start_index, std::list<int> *memory, std::list<std::
 	int segment_start = -1;
 	int segment_length = 0;
 	int index = 0;
-	std::list<int>::iterator 
-	for (auto i = memory->begin(); i != memory->end(); i++) {
+	std::list<int>::iterator i = memory->begin();
+	advance(memory, local_next_fit_start_index);
+	while (i != memory->end()){
 		if (*i == -1) {		// if the memory "block" is empty, start recording a segment
 			if (segment_start == -1)
 				segment_start = index;
@@ -99,6 +100,7 @@ int allocate_2(int next_fit_start_index, std::list<int> *memory, std::list<std::
 			segment_length = 0;
 		}
 		index++;
+		i++;
 	}
 	return local_next_fit_start_index;
 }
