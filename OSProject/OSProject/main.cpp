@@ -105,14 +105,40 @@ int allocate_2(int next_fit_start_index, std::list<int> *memory, std::list<std::
 	return local_next_fit_start_index;
 }
 
+// best fit
 void allocate_3(std::list<int> *memory, std::list<std::pair<int, int>>::iterator process_it) {
+	int p_id = process_it->first;
+	int process_size = process_it->second;
+	int segment_start = -1;
+	int segment_length = 0;
+	int index = 0;
+	std::list<std::pair<int, int>> segment_list; // <segment_start, segment_length>
+	for (auto i = memory->begin(); i != memory->end(); i++) {
+		if (*i == -1) {		// if the memory "block" is empty, start recording a segment
+			if (segment_start == -1)
+				segment_start = index;
+			segment_length++;
+		}
+		else {	// if the memory is already allocated...
+			if (segment_start != -1)	// and there was a segment beforehand...
+				segment_list.push_back(std::make_pair(segment_start, segment_length)); // store the segment block in the list of segments
+			segment_start = -1;
+			segment_length = 0;
+		}
+		index++;
+	}
+	int best_segment_start = -1;
+	int best_segment_length = -1;
+
 
 }
 
+// worst fit
 void allocate_4(std::list<int> *memory, std::list<std::pair<int, int>>::iterator process_it) {
 
 }
 
+// clear the memory
 void deallocate(std::list<int> *memory, std::list<std::pair<int, int>> *processes) {
 	if (processes->size() > 0) {
 		int selection = rand() % (processes->size() - 1);	//generate a random number between 0 and the size of the list - 1 to deallocate
@@ -128,6 +154,7 @@ void deallocate(std::list<int> *memory, std::list<std::pair<int, int>> *processe
 	}
 }
 
+// initializes a theoretical 256k memory block
 void memoryInitialize(std::list<int> *memory) {
 	for (int i = 1; i <= 128; i++) {
 		memory->push_back(-1);
