@@ -112,6 +112,49 @@ void allocate_3(std::list<int> *memory, std::list<std::pair<int, int>>::iterator
 	int segment_start = -1;
 	int segment_length = 0;
 	int index = 0;
+	std::list<std::pair<int, int>> segment_list;				// <segment_start, segment_length>
+	for (auto i = memory->begin(); i != memory->end(); i++) {
+		if (*i == -1) {											// if the memory "block" is empty, start recording a segment
+			if (segment_start == -1)
+				segment_start = index;
+			segment_length++;
+		}
+		else {																				// if the memory is already allocated...
+			if (segment_start != -1) {														// and there was a segment beforehand...
+				if(segment_length >= process_size)										    // and the segment is large enough to be valid for the process size
+					segment_list.push_back(std::make_pair(segment_start, segment_length));  // store the segment block in the list of segments
+			}
+			segment_start = -1;
+			segment_length = 0;
+		}
+		index++;
+	}
+
+	int best_segment_start = -1;													// initialize variables to keep track of the best segment
+	int best_segment_length = -1;
+	if(!segment_list.empty()){														// if we found good segments...
+		for (auto i = segment_list.begin(); i != segment_list.end(); i++) {			// loop through the list...
+			if (i->second < best_segment_length || best_segment_length == -1) {		// if this segment is a better fit than the last or best_segment_length hasn't been initialized yet...
+				best_segment_length = i->second;									// note that this is the new best segment.
+				best_segment_start = i->first;
+			}
+		}
+		std::list<int>::iterator memory_it = memory->begin();
+		advance(memory_it, best_segment_start);					// initialize the iterator to begin allocating
+		for (int j = 0; j < process_size; j++) {
+			*memory_it == p_id;									// then allocate the memory the appropriate length.
+			advance(memory_it, 1);
+		}
+	}
+}
+
+// worst fit
+void allocate_4(std::list<int> *memory, std::list<std::pair<int, int>>::iterator process_it) {
+	int p_id = process_it->first;
+	int process_size = process_it->second;
+	int segment_start = -1;
+	int segment_length = 0;
+	int index = 0;
 	std::list<std::pair<int, int>> segment_list; // <segment_start, segment_length>
 	for (auto i = memory->begin(); i != memory->end(); i++) {
 		if (*i == -1) {		// if the memory "block" is empty, start recording a segment
@@ -120,22 +163,32 @@ void allocate_3(std::list<int> *memory, std::list<std::pair<int, int>>::iterator
 			segment_length++;
 		}
 		else {	// if the memory is already allocated...
-			if (segment_start != -1)	// and there was a segment beforehand...
-				segment_list.push_back(std::make_pair(segment_start, segment_length)); // store the segment block in the list of segments
+			if (segment_start != -1) {	// and there was a segment beforehand...
+				if (segment_length >= process_size)	// and the segment is large enough to be valid for the process size
+					segment_list.push_back(std::make_pair(segment_start, segment_length)); // store the segment block in the list of segments
+			}
 			segment_start = -1;
 			segment_length = 0;
 		}
 		index++;
 	}
-	int best_segment_start = -1;
-	int best_segment_length = -1;
 
-
-}
-
-// worst fit
-void allocate_4(std::list<int> *memory, std::list<std::pair<int, int>>::iterator process_it) {
-
+	int worst_segment_start = -1;
+	int worst_segment_length = -1;
+	if (!segment_list.empty()) {
+		for (auto i = segment_list.begin(); i != segment_list.end(); i++) {				
+			if (i->second > worst_segment_length || worst_segment_length == -1) {	// same process as best fit, except find the largest fit
+				worst_segment_length = i->second;
+				worst_segment_start = i->first;
+			}
+		}
+		std::list<int>::iterator memory_it = memory->begin();
+		advance(memory_it, worst_segment_start);
+		for (int j = 0; j < process_size; j++) {				// iterate and allocate
+			*memory_it == p_id;
+			advance(memory_it, 1);
+		}
+	}
 }
 
 // clear the memory
