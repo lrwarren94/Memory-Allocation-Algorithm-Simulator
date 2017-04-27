@@ -12,9 +12,10 @@ int genPID(std::list<std::pair<int, int>> processes) {
 }
 
 bool contains(int pid, std::list<std::pair<int, int>> processes) {
-	for (auto i = processes.begin(); i != processes.end(); i++)
+	for (auto i = processes.begin(); i != processes.end(); i++){
 		if (i->first == pid)
 			return true;
+		}
 	return false;
 }
 
@@ -56,7 +57,7 @@ void allocate_1(std::list<int> *memory, std::list<std::pair<int, int>>::iterator
 				std::list<int>::iterator memory_it = memory->begin();
 				advance(memory_it, segment_start);
 				for (int j = 0; j < process_size; j++) {
-					*memory_it == p_id;
+					*memory_it = p_id;
 					advance(memory_it, 1);
 				}
 				break;
@@ -89,7 +90,7 @@ int allocate_2(int next_fit_start_index, std::list<int> *memory, std::list<std::
 				std::list<int>::iterator memory_it = memory->begin();
 				advance(memory_it, segment_start);
 				for (int j = 0; j < process_size; j++) {
-					*memory_it == p_id;
+					*memory_it = p_id;
 					advance(memory_it, 1);
 				}
 				break;
@@ -142,7 +143,7 @@ void allocate_3(std::list<int> *memory, std::list<std::pair<int, int>>::iterator
 		std::list<int>::iterator memory_it = memory->begin();
 		advance(memory_it, best_segment_start);					// initialize the iterator to begin allocating
 		for (int j = 0; j < process_size; j++) {
-			*memory_it == p_id;									// then allocate the memory the appropriate length.
+			*memory_it = p_id;									// then allocate the memory the appropriate length.
 			advance(memory_it, 1);
 		}
 	}
@@ -185,7 +186,7 @@ void allocate_4(std::list<int> *memory, std::list<std::pair<int, int>>::iterator
 		std::list<int>::iterator memory_it = memory->begin();
 		advance(memory_it, worst_segment_start);
 		for (int j = 0; j < process_size; j++) {				// iterate and allocate
-			*memory_it == p_id;
+			*memory_it = p_id;
 			advance(memory_it, 1);
 		}
 	}
@@ -230,14 +231,21 @@ int genRequest(int algorithm_id, int next_fit_start_index, std::list<int> *memor
 	return next_fit_start_index;
 }
 
+int printStatistics(std::list<int> memory) {
+	std::list<int>::iterator i = memory.begin();
+	while (i != memory.end()) {
+		std::cout << *i;
+		i++;
+	}
+}
 
 int main() {
 	std::list<int> memory;						// 256KB memory
 	memoryInitialize(&memory);
 	std::list<std::pair<int, int>> processes;	// list of processes and memory allocation size
 	int next_fit_start_index = 0;
-	next_fit_start_index = genRequest(2, next_fit_start_index, &memory, &processes);
-
-	
+	for (int i = 0; i < 10000; i++)
+		next_fit_start_index = genRequest(1, next_fit_start_index, &memory, &processes);
+	printStatistics(memory);
 	return 0;
 }
