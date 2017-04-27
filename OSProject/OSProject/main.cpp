@@ -2,6 +2,7 @@
 #include<iostream>
 #include<cstdlib>
 #include<tuple>
+#include "main.h"
 
 int genPID(std::list<std::pair<int, int>> processes) {
 	int pid = 0;
@@ -195,7 +196,7 @@ void allocate_4(std::list<int> *memory, std::list<std::pair<int, int>>::iterator
 // clear the memory
 void deallocate(std::list<int> *memory, std::list<std::pair<int, int>> *processes) {
 	if (processes->size() > 0) {
-		int selection = rand() % (processes->size() - 1);	//generate a random number between 0 and the size of the list - 1 to deallocate
+		int selection = rand() % (processes->size());	//generate a random number between 0 and the size of the list - 1 to deallocate
 		std::list<std::pair<int, int>>::iterator process_it = processes->begin();
 		std::advance(process_it, selection);
 		int process_id = process_it->first;
@@ -215,6 +216,13 @@ void memoryInitialize(std::list<int> *memory) {
 	}
 }
 
+// resets the memory
+void memoryReset(std::list<int> *memory) {
+	for (auto i = memory->begin(); i != memory ->end(); i++) {
+		*i = -1;
+	}
+}
+
 int genRequest(int algorithm_id, int next_fit_start_index, std::list<int> *memory, std::list<std::pair<int, int>> *processes) {
 	int choice = (int)(rand() % 2 + 1);
 	std::list<std::pair<int, int>>::iterator process_it;
@@ -231,10 +239,10 @@ int genRequest(int algorithm_id, int next_fit_start_index, std::list<int> *memor
 	return next_fit_start_index;
 }
 
-int printStatistics(std::list<int> memory) {
+void printStatistics(std::list<int> memory) {
 	std::list<int>::iterator i = memory.begin();
 	while (i != memory.end()) {
-		std::cout << *i;
+		std::cout << *i << "\n";
 		i++;
 	}
 }
@@ -244,8 +252,34 @@ int main() {
 	memoryInitialize(&memory);
 	std::list<std::pair<int, int>> processes;	// list of processes and memory allocation size
 	int next_fit_start_index = 0;
+	std::cout << "Algorithm 1:";
 	for (int i = 0; i < 10000; i++)
 		next_fit_start_index = genRequest(1, next_fit_start_index, &memory, &processes);
 	printStatistics(memory);
+	std::cout << "===================================================================";
+	memoryReset(&memory);
+
+	std::cout << "Algorithm 2:";
+	for (int i = 0; i < 10000; i++)
+		next_fit_start_index = genRequest(2, next_fit_start_index, &memory, &processes);
+	printStatistics(memory);
+	std::cout << "===================================================================";
+	memoryReset(&memory);
+
+	std::cout << "Algorithm 3:";
+	for (int i = 0; i < 10000; i++)
+		next_fit_start_index = genRequest(3, next_fit_start_index, &memory, &processes);
+	printStatistics(memory);
+	std::cout << "===================================================================";
+	memoryReset(&memory);
+
+	std::cout << "Algorithm 4:";
+	for (int i = 0; i < 10000; i++)
+		next_fit_start_index = genRequest(4, next_fit_start_index, &memory, &processes);
+	printStatistics(memory);
+	std::cout << "===================================================================";
+	memoryReset(&memory);
+
+	std::cin.get();
 	return 0;
 }
