@@ -249,12 +249,38 @@ int genRequest(int algorithm_id, int next_fit_start_index, std::list<int> *memor
 	return next_fit_start_index;
 }
 
-void printStatistics(std::list<int> memory) {
-	std::list<int>::iterator i = memory.begin();
-	while (i != memory.end()) {
+void printStatistics(std::list<int> *memory) {
+	std::list<int>::iterator i = memory->begin();
+	while (i != memory->end()) {
 		std::cout << *i << "\n";
 		i++;
 	}
+	int segment_start = -1;
+	int segment_length = 0;
+	int index = 0;
+	int total_empty_units = 0;
+	std::list<std::pair<int, int>> segment_list; // <segment_start, segment_length>
+	for (auto i = memory->begin(); i != memory->end(); i++) {
+		if (*i == -1 && index != memory->size()) {		// if the memory "block" is empty, start recording a segment
+			total_empty_units++;
+			if (segment_start == -1) {
+				segment_start = index;
+			}
+			segment_length++;
+			if (index == memory->size() - 1) {											// if the segment is large enough to be valid for the process size
+					segment_list.push_back(std::make_pair(segment_start, segment_length));		// if we're at the last memory block, then store the segment
+			}
+		}
+		else {	// if the memory is already allocated...
+			if (segment_start != -1) {	// and there was a segment beforehand...
+				segment_list.push_back(std::make_pair(segment_start, segment_length)); // store the segment block in the list of segments
+			}
+			segment_start = -1;
+			segment_length = 0;
+		}
+		index++;
+	}
+	std::cout << "Segment faults: " << segment_list.size() << ". Number of empty segments: " << total_empty_units << ".\n";
 }
 
 int main() {
@@ -265,7 +291,7 @@ int main() {
 	std::cout << "Algorithm 1:\n";
 	for (int i = 0; i < 10000; i++)
 		next_fit_start_index = genRequest(1, next_fit_start_index, &memory, &processes);
-	printStatistics(memory);
+	printStatistics(&memory);
 	std::cout << "===================================================================\n";
 	memoryReset(&memory);
 	processes.clear();
@@ -273,7 +299,7 @@ int main() {
 	std::cout << "Algorithm 2:\n";
 	for (int i = 0; i < 10000; i++)
 		next_fit_start_index = genRequest(2, next_fit_start_index, &memory, &processes);
-	printStatistics(memory);
+	printStatistics(&memory);
 	std::cout << "===================================================================\n";
 	memoryReset(&memory);
 	processes.clear();
@@ -281,7 +307,7 @@ int main() {
 	std::cout << "Algorithm 3:\n";
 	for (int i = 0; i < 10000; i++)
 		next_fit_start_index = genRequest(3, next_fit_start_index, &memory, &processes);
-	printStatistics(memory);
+	printStatistics(&memory);
 	std::cout << "===================================================================\n";
 	memoryReset(&memory);
 	processes.clear();
@@ -289,7 +315,7 @@ int main() {
 	std::cout << "Algorithm 4:\n";
 	for (int i = 0; i < 10000; i++)
 		next_fit_start_index = genRequest(4, next_fit_start_index, &memory, &processes);
-	printStatistics(memory);
+	printStatistics(&memory);
 	std::cout << "===================================================================\n";
 	memoryReset(&memory);
 	processes.clear();
