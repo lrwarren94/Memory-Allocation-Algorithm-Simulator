@@ -107,6 +107,8 @@ int allocate_2(int next_fit_start_index, std::list<int> *memory, std::list<std::
 	return local_next_fit_start_index;
 }
 
+
+
 // best fit
 void allocate_3(std::list<int> *memory, std::list<std::pair<int, int>>::iterator process_it) {
 	int p_id = process_it->first;
@@ -120,6 +122,10 @@ void allocate_3(std::list<int> *memory, std::list<std::pair<int, int>>::iterator
 			if (segment_start == -1)
 				segment_start = index;
 			segment_length++;
+			if (index == memory->size() - 1) {
+				if(segment_length >= process_size)												// if the segment is large enough to be valid for the process size
+					segment_list.push_back(std::make_pair(segment_start, segment_length));		// if we're at the last memory block, then store the segment
+			}
 		}
 		else {																				// if the memory is already allocated...
 			if (segment_start != -1) {														// and there was a segment beforehand...
@@ -159,10 +165,14 @@ void allocate_4(std::list<int> *memory, std::list<std::pair<int, int>>::iterator
 	int index = 0;
 	std::list<std::pair<int, int>> segment_list; // <segment_start, segment_length>
 	for (auto i = memory->begin(); i != memory->end(); i++) {
-		if (*i == -1) {		// if the memory "block" is empty, start recording a segment
+		if (*i == -1 && index != memory->size()) {		// if the memory "block" is empty, start recording a segment
 			if (segment_start == -1)
 				segment_start = index;
 			segment_length++;
+			if (index == memory->size() - 1) {
+				if (segment_length >= process_size)												// if the segment is large enough to be valid for the process size
+					segment_list.push_back(std::make_pair(segment_start, segment_length));		// if we're at the last memory block, then store the segment
+			}
 		}
 		else {	// if the memory is already allocated...
 			if (segment_start != -1) {	// and there was a segment beforehand...
@@ -211,7 +221,7 @@ void deallocate(std::list<int> *memory, std::list<std::pair<int, int>> *processe
 
 // initializes a theoretical 256k memory block
 void memoryInitialize(std::list<int> *memory) {
-	for (int i = 1; i <= 128; i++) {
+	for (int i = 0; i < 128; i++) {
 		memory->push_back(-1);
 	}
 }
@@ -252,33 +262,38 @@ int main() {
 	memoryInitialize(&memory);
 	std::list<std::pair<int, int>> processes;	// list of processes and memory allocation size
 	int next_fit_start_index = 0;
-	std::cout << "Algorithm 1:";
+	std::cout << "Algorithm 1:\n";
 	for (int i = 0; i < 10000; i++)
 		next_fit_start_index = genRequest(1, next_fit_start_index, &memory, &processes);
 	printStatistics(memory);
-	std::cout << "===================================================================";
+	std::cout << "===================================================================\n";
 	memoryReset(&memory);
+	processes.clear();
 
-	std::cout << "Algorithm 2:";
+	std::cout << "Algorithm 2:\n";
 	for (int i = 0; i < 10000; i++)
 		next_fit_start_index = genRequest(2, next_fit_start_index, &memory, &processes);
 	printStatistics(memory);
-	std::cout << "===================================================================";
+	std::cout << "===================================================================\n";
 	memoryReset(&memory);
+	processes.clear();
 
-	std::cout << "Algorithm 3:";
+	std::cout << "Algorithm 3:\n";
 	for (int i = 0; i < 10000; i++)
 		next_fit_start_index = genRequest(3, next_fit_start_index, &memory, &processes);
 	printStatistics(memory);
-	std::cout << "===================================================================";
+	std::cout << "===================================================================\n";
 	memoryReset(&memory);
+	processes.clear();
 
-	std::cout << "Algorithm 4:";
+	std::cout << "Algorithm 4:\n";
 	for (int i = 0; i < 10000; i++)
 		next_fit_start_index = genRequest(4, next_fit_start_index, &memory, &processes);
 	printStatistics(memory);
-	std::cout << "===================================================================";
+	std::cout << "===================================================================\n";
 	memoryReset(&memory);
+	processes.clear();
+
 
 	std::cin.get();
 	return 0;
